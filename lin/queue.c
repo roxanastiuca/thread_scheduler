@@ -1,6 +1,11 @@
 #include "queue.h"
 
-queue_t *new_queue(TPriorityFunc priority_func) {
+/*
+ * Description: initialize new queue.
+ * Return: NULL if memory allocation fails, else queue.
+ */
+queue_t *new_queue(TPriorityFunc priority_func)
+{
 	queue_t *q = (queue_t *) malloc(sizeof(queue_t));
 
 	if (q) {
@@ -11,14 +16,26 @@ queue_t *new_queue(TPriorityFunc priority_func) {
 	return q;
 }
 
-void free_queue(queue_t **q, TFreeEl free_elem) {
+/*
+ * Description: frees entire memory used by queue, using
+ * free_elem for freeing space held by elements.
+ */
+void free_queue(queue_t **q, TFreeEl free_elem)
+{
 	free_list(&((*q)->front), free_elem);
 	free(*q);
 	*q = NULL;
 }
 
-int push_back(queue_t *q, void *val) {
+/*
+ * Description: inserts one element in queue at the correct place
+ * referred by its priority.
+ * Return: -ENOMEM, else 0 for no error.
+ */
+int push_back(queue_t *q, void *val)
+{
 	list_t elem = new_node(val);
+	
 	if (!elem)
 		return -ENOMEM;
 
@@ -29,7 +46,7 @@ int push_back(queue_t *q, void *val) {
 	}
 
 	if (q->priority(q->back->val) >= q->priority(val)) {
-		/* place element in the back */
+		/* element is placed in the back */
 		q->back->next = elem;
 		q->back = elem;
 		return 0;
@@ -48,6 +65,7 @@ int push_back(queue_t *q, void *val) {
 		elem->next = q->front;
 		q->front = elem;
 	} else {
+		/* place between ant and l */
 		elem->next = l;
 		ant->next = elem;
 	}
@@ -55,19 +73,30 @@ int push_back(queue_t *q, void *val) {
 	return 0;
 }
 
-void *pop_front(queue_t *q) {
+/*
+ * Description: removes and returns first element in queue or
+ * NULL if queue is empty.
+ */
+void *pop_front(queue_t *q)
+{
 	if (!q->front)
 		return NULL;
 
 	list_t elem = q->front;
 	void *val = elem->val;
+	
 	q->front = elem->next;
 	free(elem);
 
 	return val;
 }
 
-void *peek_front(queue_t *q) {
+/*
+ * Description: returns first element in queue or NULL if queue is
+ * empty.
+ */
+void *peek_front(queue_t *q)
+{
 	if (!q->front)
 		return NULL;
 
